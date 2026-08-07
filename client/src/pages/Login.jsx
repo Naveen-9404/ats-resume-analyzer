@@ -13,10 +13,10 @@ function Login() {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
+    setForm((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -30,18 +30,17 @@ function Login() {
     try {
       setLoading(true);
 
-      const res = await API.post("/api/v1/auth/login", ...);
-
-      // Store JWT Token
-      localStorage.setItem(
-        "token",
-        res.data.data.token
+      const res = await API.post(
+        "/api/v1/auth/login",
+        form
       );
 
-      // Store Logged-in User
+      const { token, user } = res.data.data;
+
+      localStorage.setItem("token", token);
       localStorage.setItem(
         "user",
-        JSON.stringify(res.data.data.user)
+        JSON.stringify(user)
       );
 
       navigate("/dashboard");
@@ -56,30 +55,24 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-slate-200 flex items-center justify-center px-4">
-
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-10">
-
-        <div className="text-center mb-8">
-
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 p-6">
+      <div className="w-full max-w-md rounded-3xl bg-white p-10 shadow-2xl">
+        <div className="mb-8 text-center">
           <h1 className="text-4xl font-bold text-slate-800">
             Welcome Back
           </h1>
 
-          <p className="text-gray-500 mt-2">
+          <p className="mt-2 text-gray-500">
             Login to continue analyzing resumes
           </p>
-
         </div>
 
         <form
           onSubmit={handleSubmit}
           className="space-y-5"
         >
-
           <div>
-
-            <label className="block mb-2 text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
               Email
             </label>
 
@@ -89,14 +82,12 @@ function Login() {
               value={form.email}
               onChange={handleChange}
               placeholder="Enter your email"
-              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border border-gray-300 p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
           </div>
 
           <div>
-
-            <label className="block mb-2 text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
               Password
             </label>
 
@@ -106,44 +97,35 @@ function Login() {
               value={form.password}
               onChange={handleChange}
               placeholder="Enter your password"
-              className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border border-gray-300 p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-4 rounded-xl font-semibold text-lg text-white transition duration-300 ${
+            className={`w-full rounded-xl py-4 text-lg font-semibold text-white transition duration-300 ${
               loading
-                ? "bg-gray-500 cursor-not-allowed"
+                ? "cursor-not-allowed bg-gray-500"
                 : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-[1.02]"
             }`}
           >
             {loading ? "Logging In..." : "Login"}
           </button>
-
         </form>
 
         <div className="mt-8 text-center">
-
           <p className="text-gray-600">
-
             Don't have an account?{" "}
-
             <Link
               to="/register"
-              className="text-blue-600 font-semibold hover:underline"
+              className="font-semibold text-blue-600 hover:underline"
             >
               Register
             </Link>
-
           </p>
-
         </div>
-
       </div>
-
     </div>
   );
 }

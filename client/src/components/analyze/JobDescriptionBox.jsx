@@ -1,0 +1,3 @@
+import { BriefcaseBusiness } from "lucide-react";
+const JobDescriptionBox = ({ value, onChange }) => <section><div className="flex items-center gap-2"><BriefcaseBusiness size={18} className="text-emerald-600" /><label className="font-semibold text-slate-800">Job description</label></div><p className="mt-1 text-sm text-slate-500">Paste the role description to tailor your analysis.</p><textarea value={value} onChange={(event) => onChange(event.target.value)} rows="8" placeholder="Paste the job description here..." className="mt-4 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100" /></section>;
+export default JobDescriptionBox;

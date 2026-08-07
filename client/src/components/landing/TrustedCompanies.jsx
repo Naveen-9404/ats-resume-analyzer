@@ -1,0 +1,2 @@
+const TrustedCompanies = () => <section className="border-y border-slate-200 bg-white py-10"><div className="mx-auto max-w-7xl px-6 text-center lg:px-8"><p className="text-xs font-bold uppercase tracking-[.2em] text-slate-400">Trusted by ambitious candidates from</p><div className="mt-7 flex flex-wrap items-center justify-center gap-x-12 gap-y-5 text-xl font-bold tracking-tight text-slate-400"><span>stripe</span><span>vercel</span><span>linear</span><span>Notion</span><span>Webflow</span></div></div></section>;
+export default TrustedCompanies;

@@ -1,0 +1,7 @@
+import { BriefcaseBusiness } from "lucide-react";
+import { motion } from "framer-motion";
+import ActionButtons from "../dashboard/ActionButtons";
+import UploadArea from "./UploadArea";
+import UploadProgress from "./UploadProgress";
+const UploadCard = ({ file, onFileChange, jobDescription, onJobDescriptionChange, onUpload, isUploading, onDownload, hasAnalysis }) => <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .08 }} className="rounded-3xl border border-white/70 bg-white/75 p-5 shadow-xl shadow-slate-900/5 backdrop-blur-xl sm:p-7"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-emerald-100 text-emerald-700"><BriefcaseBusiness size={19} /></span><div><h2 className="font-bold text-slate-950">Analyze a new resume</h2><p className="text-sm text-slate-500">Tailor it to the role you want.</p></div></div><textarea rows="5" placeholder="Paste the job description here..." value={jobDescription} onChange={(event) => onJobDescriptionChange(event.target.value)} className="mt-6 w-full resize-none rounded-2xl border border-slate-200 bg-white p-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" /><UploadArea file={file} onFileChange={onFileChange} /><div className="mt-6"><ActionButtons onAnalyze={onUpload} onDownload={onDownload} disabled={isUploading} hasAnalysis={hasAnalysis} /></div><UploadProgress isUploading={isUploading} /></motion.section>;
+export default UploadCard;

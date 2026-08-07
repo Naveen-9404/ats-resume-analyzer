@@ -1,0 +1,4 @@
+import { ArrowLeft, LayoutDashboard, ScanSearch } from "lucide-react";
+import { Link } from "react-router-dom";
+const AnalyzeHeader = ({ isMember }) => <header className="border-b border-slate-200 bg-white/80 backdrop-blur-xl"><div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4"><Link to="/" className="flex items-center gap-2 font-bold text-slate-950"><span className="grid size-9 place-items-center rounded-xl bg-slate-950 text-white"><ScanSearch size={19} /></span>Resume<span className="text-emerald-600">AI</span></Link>{isMember ? <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white"><LayoutDashboard size={16} />Dashboard</Link> : <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-950"><ArrowLeft size={16} />Back to home</Link>}</div></header>;
+export default AnalyzeHeader;

@@ -1,0 +1,2 @@
+const ConfirmDialog = ({ open, title = "Delete this item?", onConfirm, onCancel }) => open ? <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"><div className="bg-white rounded-2xl p-6 shadow-xl"><p className="font-semibold">{title}</p><div className="mt-5 flex gap-3"><button onClick={onConfirm} className="bg-red-500 text-white px-4 py-2 rounded-xl">Delete</button><button onClick={onCancel} className="px-4 py-2 rounded-xl">Cancel</button></div></div></div> : null;
+export default ConfirmDialog;

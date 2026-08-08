@@ -116,7 +116,9 @@ function Dashboard() {
 
   return (
     <DashboardLayout
-      sidebar={<Sidebar onLogout={handleLogout} />}
+       sidebar={
+    <Sidebar onLogout={handleLogout} />
+  }
     >
       <DashboardHeader
         username={user.name?.split(" ")[0] || "there"}

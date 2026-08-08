@@ -9,31 +9,22 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests without an Origin header
-    // (Postman, curl, server-to-server requests, etc.)
     if (!origin) {
       return callback(null, true);
     }
 
-    // Exact allowed origins
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    // Allow Vercel deployments belonging to this project
-    if (
-      /^https:\/\/ats-resume-analyzer(?:-[a-z0-9]+)*\.vercel\.app$/i.test(
+    const isAllowed =
+      allowedOrigins.includes(origin) ||
+      /^https:\/\/ats-resume-analyzer-gg6v-[a-z0-9]+\.vercel\.app$/i.test(
         origin
-      )
-    ) {
+      );
+
+    if (isAllowed) {
       return callback(null, true);
     }
 
     console.error("CORS blocked origin:", origin);
-
-    return callback(
-      new Error(`CORS policy: Origin not allowed - ${origin}`)
-    );
+    return callback(new Error("CORS policy: Origin not allowed"));
   },
 
   credentials: true,

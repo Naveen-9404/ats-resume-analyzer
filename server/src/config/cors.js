@@ -1,24 +1,39 @@
 import cors from "cors";
 import env from "./env.js";
 
+const allowedOrigins = [
+  env.clientUrl,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+].filter(Boolean);
+
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (Postman, mobile apps, curl)
+    // Allow requests without an Origin header
+    // (Postman, curl, server-to-server requests, etc.)
     if (!origin) {
       return callback(null, true);
     }
 
-    const allowedOrigins = [
-      env.clientUrl,
-      "http://localhost:5173",
-      "http://127.0.0.1:5173",
-    ];
-
+    // Exact allowed origins
     if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS policy: Origin not allowed"));
+      return callback(null, true);
     }
+
+    // Allow Vercel deployments belonging to this project
+    if (
+      /^https:\/\/ats-resume-analyzer(?:-[a-z0-9]+)*\.vercel\.app$/i.test(
+        origin
+      )
+    ) {
+      return callback(null, true);
+    }
+
+    console.error("CORS blocked origin:", origin);
+
+    return callback(
+      new Error(`CORS policy: Origin not allowed - ${origin}`)
+    );
   },
 
   credentials: true,
@@ -37,7 +52,7 @@ const corsOptions = {
     "Authorization",
   ],
 
-  optionsSuccessStatus: 200,
+  optionsSuccessStatus: 204,
 };
 
 export default cors(corsOptions);

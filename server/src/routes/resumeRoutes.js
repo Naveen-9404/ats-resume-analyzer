@@ -3,12 +3,16 @@ import multer from "multer";
 
 import authMiddleware from "../middlewares/authMiddleware.js";
 
+import { analyzeLimiter } from "../middlewares/rateLimiter.js";
 import {
   uploadResume,
   analyzeResume,
   getHistory,
   deleteResume,
 } from "../controllers/resumeController.js";
+
+import validateRequest from "../validators/validateRequest.js";
+import { uploadResumeSchema } from "../validators/resumeValidator.js";
 
 const router = express.Router();
 
@@ -40,6 +44,7 @@ const upload = multer({
 
 router.post(
   "/analyze",
+  analyzeLimiter,
   upload.single("resume"),
   analyzeResume
 );
@@ -47,7 +52,7 @@ router.post(
 router.post(
   "/upload",
   authMiddleware,
-  upload.single("resume"),
+  validateRequest(uploadResumeSchema),
   uploadResume
 );
 
@@ -64,3 +69,7 @@ router.delete(
 );
 
 export default router;
+
+
+
+

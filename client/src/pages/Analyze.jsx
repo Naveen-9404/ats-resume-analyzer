@@ -79,20 +79,12 @@ function Analyze() {
     try {
       setSaving(true);
 
-      const formData =
-        new FormData();
+      const payload = {
+        ...analysis,
+        jobDescription: upload.jobDescription
+      };
 
-      formData.append(
-        "resume",
-        upload.file
-      );
-
-      formData.append(
-        "jobDescription",
-        upload.jobDescription
-      );
-
-      await saveAnalysis(formData);
+      await saveAnalysis(payload);
 
       toast.success(
         "Analysis saved successfully."

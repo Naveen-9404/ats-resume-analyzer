@@ -4,6 +4,10 @@ import {
   login,
 } from "../controllers/authController.js";
 
+import { authLimiter } from "../middlewares/rateLimiter.js";
+import validateRequest from "../validators/validateRequest.js";
+import { registerSchema, loginSchema } from "../validators/authValidator.js";
+
 const router = express.Router();
 
 router.get("/test", (req, res) => {
@@ -13,7 +17,10 @@ router.get("/test", (req, res) => {
   });
 });
 
-router.post("/register", register);
-router.post("/login", login);
+// Apply strict rate limiting to auth routes
+router.use(authLimiter);
+
+router.post("/register", validateRequest(registerSchema), register);
+router.post("/login", validateRequest(loginSchema), login);
 
 export default router;

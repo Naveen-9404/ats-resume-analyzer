@@ -28,12 +28,11 @@ export function exportPDF(report = {}) {
   drawCover(doc, report);
 
   drawHeader(doc);
-  let y = 24;
 
-  y = drawCandidate(doc, report);
+  let y = drawCandidate(doc, report);
   y = drawATS(doc, report, y);
   y = drawCareer(doc, report, y);
-  y = drawSummary(doc, report, y);
+  drawSummary(doc, report, y);
 
   doc.addPage();
   drawHeader(doc);
@@ -42,7 +41,7 @@ export function exportPDF(report = {}) {
   y = drawHealth(doc, report, y);
   y = drawStrengths(doc, report, y);
   y = drawImprovements(doc, report, y);
-  y = drawRecommendations(doc, report, y);
+  drawRecommendations(doc, report, y);
 
   doc.addPage();
   drawHeader(doc);
@@ -50,7 +49,7 @@ export function exportPDF(report = {}) {
 
   y = drawSkills(doc, report, y);
   y = drawInterview(doc, report, y);
-  y = drawVerdict(doc, report, y);
+  drawVerdict(doc, report, y);
 
   drawFooter(doc);
 

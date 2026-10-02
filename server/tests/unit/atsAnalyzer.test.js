@@ -1,0 +1,53 @@
+import { describe, it, expect } from "vitest";
+import { analyzeResume } from "../../src/utils/atsAnalyzer.js";
+
+describe("ATS Analyzer", () => {
+  it("should match keywords and calculate correct score", () => {
+    const text = "I am a React and Node developer with API experience.";
+    const result = analyzeResume(text);
+    
+    expect(result.matched).toContain("react");
+    expect(result.matched).toContain("node");
+    expect(result.matched).toContain("api");
+    expect(result.missing).toContain("python");
+    
+    // 3 matched out of 10 keywords = 30%
+    expect(result.score).toBe(30);
+  });
+
+  it("should handle empty resume text", () => {
+    const result = analyzeResume("");
+    
+    expect(result.matched).toHaveLength(0);
+    expect(result.missing).toHaveLength(10);
+    expect(result.score).toBe(0);
+  });
+
+  it("should handle duplicate keywords correctly without inflating score", () => {
+    const text = "react react react react";
+    const result = analyzeResume(text);
+    
+    expect(result.matched).toHaveLength(1);
+    expect(result.matched).toContain("react");
+    expect(result.score).toBe(10); // 1 / 10
+  });
+
+  it("should never exceed 100 or fall below 0", () => {
+    const allKeywords = "react node mongodb javascript express api sql html css python";
+    const result = analyzeResume(allKeywords);
+    
+    expect(result.score).toBe(100);
+    expect(result.matched).toHaveLength(10);
+    expect(result.missing).toHaveLength(0);
+  });
+  
+  it("should handle boundary matches like capitalization", () => {
+    const text = "REACT NODE mOnGoDb";
+    const result = analyzeResume(text);
+    
+    expect(result.matched).toContain("react");
+    expect(result.matched).toContain("node");
+    expect(result.matched).toContain("mongodb");
+    expect(result.score).toBe(30);
+  });
+});

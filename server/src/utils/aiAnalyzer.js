@@ -14,6 +14,8 @@ const client = new OpenAI({
 
   baseURL: "https://openrouter.ai/api/v1",
 
+  timeout: 15000,
+
   defaultHeaders: {
     "HTTP-Referer": "http://localhost:5173",
     "X-Title": "VectorCV",
@@ -37,7 +39,7 @@ const normalizeArray = (value) =>
 /*                         Normalize AI Response                              */
 /* -------------------------------------------------------------------------- */
 
-function normalizeAIResponse(ai = {}) {
+export function normalizeAIResponse(ai = {}) {
   const breakdown = ai.breakdown || {};
 
   const atsScore = clamp(ai.atsScore);

@@ -6,8 +6,8 @@ export const uploadResume = (formData) =>
 export const analyzeResume = (formData) =>
   API.post("/api/v1/resume/analyze", formData);
 
-export const saveAnalysis = (formData) =>
-  API.post("/api/v1/resume/upload", formData);
+export const saveAnalysis = (payload) =>
+  API.post("/api/v1/resume/upload", payload);
 
 export const getResumeHistory = () =>
   API.get("/api/v1/resume/history");

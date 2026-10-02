@@ -1,11 +1,10 @@
-import { COLORS, FONT, PAGE, SPACING, CARD } from "./theme";
+import { COLORS, FONT, PAGE, CARD } from "./theme";
 
 /* ======================================================= */
 /* LAYOUT CONSTANTS                                        */
 /* ======================================================= */
 
 const SECTION_GAP = 16;
-const CARD_PADDING = 8;
 const LINE_HEIGHT = 6;
 
 /* ======================================================= */

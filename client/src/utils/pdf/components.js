@@ -1009,8 +1009,7 @@ export function drawVerdict(
   const verdict =
     report.recruiterVerdict || {};
 
-  let badgeColor =
-    COLORS.emerald;
+  let badgeColor;
 
   switch (
     verdict.rating

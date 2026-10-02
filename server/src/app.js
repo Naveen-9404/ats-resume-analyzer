@@ -13,6 +13,8 @@ import resumeRoutes from "./routes/resumeRoutes.js";
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 /*
 |--------------------------------------------------------------------------
 | Security Middlewares
@@ -59,12 +61,15 @@ app.get("/api/v1/health", (req, res) => {
   });
 });
 
+import { apiLimiter } from "./middlewares/rateLimiter.js";
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 */
 
+app.use("/api", apiLimiter);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/resume", resumeRoutes);
 /*

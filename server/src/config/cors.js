@@ -1,5 +1,6 @@
 import cors from "cors";
 import env from "./env.js";
+import logger from "./logger.js";
 
 const allowedOrigins = [
   env.clientUrl,
@@ -23,7 +24,7 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    console.error("CORS blocked origin:", origin);
+    logger.error("CORS blocked origin:", origin);
     return callback(new Error("CORS policy: Origin not allowed"));
   },
 

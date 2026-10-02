@@ -17,6 +17,7 @@ import RecommendationsCard from "../components/dashboard/RecommendationsCard";
 import SkillCoverageCard from "../components/dashboard/SkillCoverageCard";
 
 import ResumePreview from "../components/preview/ResumePreview";
+import HistoricalPreview from "../components/dashboard/HistoricalPreview";
 import ResumeHistory from "../components/history/ResumeHistory";
 
 import { useATS } from "../hooks/useATS";
@@ -170,11 +171,18 @@ function Dashboard() {
       </div>
 
       <div className="mt-6">
-        <ResumePreview
-          file={current.resumeUrl || current.fileUrl}
-          fileName={current.fileName}
-          emptyMessage="Upload a resume to preview it here."
-        />
+        {!hasAnalysis ? (
+          <ResumePreview
+            file={null}
+            fileName=""
+            emptyMessage="Upload a resume to preview it here."
+          />
+        ) : (
+          <HistoricalPreview
+            jobDescription={current.jobDescription}
+            onDownload={() => handleDownload(current)}
+          />
+        )}
       </div>
 
       <ResumeHistory

@@ -4,6 +4,7 @@ import { parseResume } from "../utils/resumeParser.js";
 import { extractKeywords } from "../utils/keywordExtractor.js";
 import { calculateATSScore } from "../utils/atsScore.js";
 import { getAISuggestions } from "../utils/aiAnalyzer.js";
+import logger from "../config/logger.js";
 
 /* -------------------------------------------------------------------------- */
 /*                             Default Objects                                */
@@ -174,11 +175,7 @@ export const analyzeResume = async (
         req.body.jobDescription
       );
 
-    // Never expose the complete resume text
-    const {
-      resumeText,
-      ...response
-    } = analysis;
+    const response = analysis;
 
     return res.status(200).json({
       success: true,
@@ -189,7 +186,7 @@ export const analyzeResume = async (
       data: response,
     });
   } catch (error) {
-    console.error(
+    logger.error(
       "Analyze Resume Error:",
       error
     );
@@ -217,24 +214,31 @@ export const uploadResume = async (
   res
 ) => {
   try {
-    if (
-      !validateAnalysisRequest(
-        req,
-        res
-      )
-    ) {
-      return;
+    const {
+      fileName,
+      resumeText,
+      jobDescription,
+      preview,
+      candidate,
+      atsScore,
+      careerReadiness,
+      breakdown,
+      matched,
+      missing,
+      summary,
+      strengths,
+      improvements,
+      recommendations,
+      interviewQuestions,
+      recruiterVerdict
+    } = req.body;
+
+    if (!fileName || !resumeText || !jobDescription) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields for saving analysis.",
+      });
     }
-
-    /* ---------------------------------------------------------------------- */
-    /*                           Generate Analysis                            */
-    /* ---------------------------------------------------------------------- */
-
-    const analysis =
-      await buildAnalysis(
-        req.file,
-        req.body.jobDescription
-      );
 
     /* ---------------------------------------------------------------------- */
     /*                           Save to Database                             */
@@ -243,54 +247,22 @@ export const uploadResume = async (
     const savedResume =
       await Resume.create({
         user: req.user.id,
-
-        fileName:
-          analysis.fileName,
-
-        resumeText:
-          analysis.resumeText,
-
-        preview:
-          analysis.preview,
-
-        jobDescription:
-          req.body.jobDescription,
-
-        candidate:
-          analysis.candidate,
-
-        atsScore:
-          analysis.atsScore,
-
-        careerReadiness:
-          analysis.careerReadiness,
-
-        breakdown:
-          analysis.breakdown,
-
-        matched:
-          analysis.matched,
-
-        missing:
-          analysis.missing,
-
-        summary:
-          analysis.summary,
-
-        strengths:
-          analysis.strengths,
-
-        improvements:
-          analysis.improvements,
-
-        recommendations:
-          analysis.recommendations,
-
-        interviewQuestions:
-          analysis.interviewQuestions,
-
-        recruiterVerdict:
-          analysis.recruiterVerdict,
+        fileName,
+        resumeText,
+        preview,
+        jobDescription,
+        candidate,
+        atsScore,
+        careerReadiness,
+        breakdown,
+        matched,
+        missing,
+        summary,
+        strengths,
+        improvements,
+        recommendations,
+        interviewQuestions,
+        recruiterVerdict,
       });
 
     /* ---------------------------------------------------------------------- */
@@ -299,76 +271,33 @@ export const uploadResume = async (
 
     return res.status(201).json({
       success: true,
-
-      message:
-        "Resume analyzed and saved successfully.",
-
+      message: "Resume analyzed and saved successfully.",
       data: {
         id: savedResume._id,
-
-        fileName:
-          savedResume.fileName,
-
-        preview:
-          savedResume.preview,
-
-        candidate:
-          savedResume.candidate,
-
-        atsScore:
-          savedResume.atsScore,
-
-        careerReadiness:
-          savedResume.careerReadiness,
-
-        breakdown:
-          savedResume.breakdown,
-
-        matched:
-          savedResume.matched,
-
-        missing:
-          savedResume.missing,
-
-        summary:
-          savedResume.summary,
-
-        strengths:
-          savedResume.strengths,
-
-        improvements:
-          savedResume.improvements,
-
-        recommendations:
-          savedResume.recommendations,
-
-        interviewQuestions:
-          savedResume.interviewQuestions,
-
-        recruiterVerdict:
-          savedResume.recruiterVerdict,
-
-        createdAt:
-          savedResume.createdAt,
+        fileName: savedResume.fileName,
+        preview: savedResume.preview,
+        candidate: savedResume.candidate,
+        atsScore: savedResume.atsScore,
+        careerReadiness: savedResume.careerReadiness,
+        breakdown: savedResume.breakdown,
+        matched: savedResume.matched,
+        missing: savedResume.missing,
+        summary: savedResume.summary,
+        strengths: savedResume.strengths,
+        improvements: savedResume.improvements,
+        recommendations: savedResume.recommendations,
+        interviewQuestions: savedResume.interviewQuestions,
+        recruiterVerdict: savedResume.recruiterVerdict,
+        createdAt: savedResume.createdAt,
       },
     });
   } catch (error) {
-    console.error(
-      "Upload Resume Error:",
-      error
-    );
+    logger.error("Upload Resume Error:", error);
 
     return res.status(500).json({
       success: false,
-
-      message:
-        "Failed to save resume analysis.",
-
-      error:
-        process.env.NODE_ENV ===
-        "development"
-          ? error.message
-          : undefined,
+      message: "Failed to save resume analysis.",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -392,7 +321,7 @@ export const getHistory = async (req, res) => {
       data: history,
     });
   } catch (error) {
-    console.error("Get History Error:", error);
+    logger.error("Get History Error:", error);
 
     return res.status(500).json({
       success: false,
@@ -430,7 +359,7 @@ export const deleteResume = async (req, res) => {
       deletedId: deletedResume._id,
     });
   } catch (error) {
-    console.error("Delete Resume Error:", error);
+    logger.error("Delete Resume Error:", error);
 
     return res.status(500).json({
       success: false,

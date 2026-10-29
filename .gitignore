@@ -1,0 +1,46 @@
+# ==============================================================================
+# Root Git Ignore Rules for VectorCV / ATS Resume Analyzer
+# ==============================================================================
+
+# Environment and secrets
+.env
+.env.*
+.env*.local
+*.env
+*.env.*
+
+# Whitelist environment templates
+!.env.example
+!**/.env.example
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build and distribution outputs
+dist/
+dist-ssr/
+build/
+coverage/
+
+# Logs
+logs/
+*.log
+
+# Operating system and editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# Local agent artifacts and temporary scratch files
+.agents/
+.gemini/
+*.tmp
+*.temp

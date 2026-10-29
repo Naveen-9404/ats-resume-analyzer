@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { analyzeResume } from "../../src/utils/atsAnalyzer.js";
+import { calculateATSScore } from "../../src/utils/atsScore.js";
 
 describe("ATS Analyzer", () => {
   it("should match keywords and calculate correct score", () => {
@@ -49,5 +50,31 @@ describe("ATS Analyzer", () => {
     expect(result.matched).toContain("node");
     expect(result.matched).toContain("mongodb");
     expect(result.score).toBe(30);
+  });
+});
+
+describe("Production ATS Scoring Engine (calculateATSScore)", () => {
+  it("should explicitly return empty matched and missing arrays when job description has zero keywords", () => {
+    const result = calculateATSScore([], ["react", "node"], "Experienced developer");
+
+    expect(result.score).toBe(0);
+    expect(result.breakdown).toBeDefined();
+    expect(result.breakdown.keywordMatch).toBe(0);
+    expect(result.breakdown.resumeQuality).toBe(0);
+    expect(result.breakdown.completeness).toBe(0);
+    expect(result.breakdown.matched).toEqual([]);
+    expect(result.breakdown.missing).toEqual([]);
+  });
+
+  it("should calculate matched and missing keywords when job description keywords are present", () => {
+    const jdKeywords = ["react", "node", "typescript"];
+    const resumeKeywords = ["react", "node"];
+    const resumeText = "Experienced developer with React and Node skills and education in computer science.";
+
+    const result = calculateATSScore(jdKeywords, resumeKeywords, resumeText);
+
+    expect(result.breakdown.matched).toEqual(["react", "node"]);
+    expect(result.breakdown.missing).toEqual(["typescript"]);
+    expect(result.score).toBeGreaterThan(0);
   });
 });

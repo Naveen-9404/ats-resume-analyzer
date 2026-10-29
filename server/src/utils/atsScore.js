@@ -19,6 +19,8 @@ export const calculateATSScore = (
         keywordMatch: 0,
         resumeQuality: 0,
         completeness: 0,
+        matched: [],
+        missing: [],
       },
     };
   }

@@ -144,7 +144,7 @@ export const getAISuggestions = async (
   try {
     const completion =
       await client.chat.completions.create({
-        model: "google/gemma-4-26b-a4b-it:free",
+        model: env.openRouterModel || "google/gemma-2-9b-it:free",
 
         temperature: 0,
 

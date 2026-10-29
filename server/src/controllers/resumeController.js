@@ -87,14 +87,18 @@ const buildAnalysis = async (
       EMPTY_BREAKDOWN,
 
     matched:
-      ai.matchedSkills ??
-      atsResult.breakdown.matched ??
-      [],
+      Array.isArray(ai.matchedSkills) && ai.matchedSkills.length > 0
+        ? ai.matchedSkills
+        : Array.isArray(atsResult?.breakdown?.matched)
+          ? atsResult.breakdown.matched
+          : [],
 
     missing:
-      ai.missingSkills ??
-      atsResult.breakdown.missing ??
-      [],
+      Array.isArray(ai.missingSkills) && ai.missingSkills.length > 0
+        ? ai.missingSkills
+        : Array.isArray(atsResult?.breakdown?.missing)
+          ? atsResult.breakdown.missing
+          : [],
 
     summary:
       ai.summary ?? "",

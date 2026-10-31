@@ -48,19 +48,97 @@ const buildAnalysis = async (
 
   /* -------------------------- ATS Engine Score --------------------------- */
 
+  const jdKeywords = extractKeywords(jobDescription);
+  const resumeKeywords = extractKeywords(resumeText);
+
   const atsResult = calculateATSScore(
-    extractKeywords(jobDescription),
-    extractKeywords(resumeText),
+    jdKeywords,
+    resumeKeywords,
     resumeText
   );
 
   /* --------------------------- AI Intelligence --------------------------- */
 
-  const ai =
-    await getAISuggestions(
+  let ai;
+  try {
+    ai = await getAISuggestions(
       resumeText,
       jobDescription
     );
+  } catch (error) {
+    logger.error("Unexpected AI analysis error", {
+      message: error?.message || "Unknown error",
+    });
+    ai = {
+      isFallback: true,
+      summary:
+        "AI analysis is temporarily unavailable. VectorCV generated a fallback analysis using the ATS engine.",
+      recruiterVerdict: {
+        rating: "Average Match",
+        reason:
+          "AI service was unavailable. This assessment is based on the ATS scoring engine.",
+      },
+    };
+  }
+
+  const isAIAvailable = Boolean(ai && !ai.isFallback && typeof ai.atsScore === "number");
+
+  /* ----------------------- Local Breakdown Calculation ------------------- */
+
+  const localMatched = Array.isArray(atsResult?.breakdown?.matched)
+    ? atsResult.breakdown.matched
+    : [];
+
+  const localMissing = Array.isArray(atsResult?.breakdown?.missing)
+    ? atsResult.breakdown.missing
+    : [];
+
+  const totalKeywords = localMatched.length + localMissing.length;
+
+  const localKeywordPct = totalKeywords > 0
+    ? Math.round((localMatched.length / totalKeywords) * 100)
+    : 0;
+
+  const localBreakdown = {
+    resumeQuality: Math.min(100, Math.round(((atsResult?.breakdown?.resumeQuality || 0) / 20) * 100)),
+    keywordMatch: localKeywordPct,
+    skillsMatch: localKeywordPct,
+    formatting: Math.min(100, Math.round(((atsResult?.breakdown?.completeness || 0) / 10) * 100)),
+  };
+
+  /* -------------------------- Merged Metrics ----------------------------- */
+
+  const atsScore = isAIAvailable ? (ai.atsScore ?? atsResult.score) : atsResult.score;
+
+  const breakdown = isAIAvailable && ai.breakdown
+    ? ai.breakdown
+    : localBreakdown;
+
+  const careerReadiness =
+    isAIAvailable && typeof ai.careerReadiness === "number"
+      ? ai.careerReadiness
+      : Math.min(
+          100,
+          Math.max(
+            0,
+            Math.round(
+              atsScore * 0.45 +
+                breakdown.resumeQuality * 0.2 +
+                breakdown.skillsMatch * 0.2 +
+                breakdown.formatting * 0.15
+            )
+          )
+        );
+
+  const matched =
+    Array.isArray(ai?.matchedSkills) && ai.matchedSkills.length > 0
+      ? ai.matchedSkills
+      : localMatched;
+
+  const missing =
+    Array.isArray(ai?.missingSkills) && ai.missingSkills.length > 0
+      ? ai.missingSkills
+      : localMissing;
 
   /* ---------------------------- Final Object ----------------------------- */
 
@@ -72,54 +150,42 @@ const buildAnalysis = async (
     preview: resumeText.slice(0, 500),
 
     candidate:
-      ai.candidate ??
+      ai?.candidate ??
       EMPTY_CANDIDATE,
 
-    atsScore:
-      ai.atsScore ??
-      atsResult.score,
+    atsScore,
 
-    careerReadiness:
-      ai.careerReadiness ?? 0,
+    careerReadiness,
 
-    breakdown:
-      ai.breakdown ??
-      EMPTY_BREAKDOWN,
+    breakdown,
 
-    matched:
-      Array.isArray(ai.matchedSkills) && ai.matchedSkills.length > 0
-        ? ai.matchedSkills
-        : Array.isArray(atsResult?.breakdown?.matched)
-          ? atsResult.breakdown.matched
-          : [],
+    matched,
 
-    missing:
-      Array.isArray(ai.missingSkills) && ai.missingSkills.length > 0
-        ? ai.missingSkills
-        : Array.isArray(atsResult?.breakdown?.missing)
-          ? atsResult.breakdown.missing
-          : [],
+    missing,
 
     summary:
-      ai.summary ?? "",
+      ai?.summary ?? "",
 
     strengths:
-      ai.strengths ?? [],
+      ai?.strengths ?? [],
 
     improvements:
-      ai.improvements ?? [],
+      ai?.improvements ?? [],
 
     recommendations:
-      ai.recommendations ?? [],
+      ai?.recommendations ?? [],
 
     interviewQuestions:
-      ai.interviewQuestions ?? [],
+      ai?.interviewQuestions ?? [],
 
     recruiterVerdict:
-      ai.recruiterVerdict ??
+      ai?.recruiterVerdict ??
       EMPTY_VERDICT,
+
+    isFallback: !isAIAvailable,
   };
 };
+
 /* -------------------------------------------------------------------------- */
 /*                           Request Validation                               */
 /* -------------------------------------------------------------------------- */

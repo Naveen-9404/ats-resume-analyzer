@@ -14,7 +14,7 @@ const client = new OpenAI({
 
   baseURL: "https://openrouter.ai/api/v1",
 
-  timeout: 15000,
+  timeout: 45000,
 
   defaultHeaders: {
     "HTTP-Referer": "http://localhost:5173",
@@ -130,6 +130,8 @@ export function normalizeAIResponse(ai = {}) {
         ) ||
         "No recruiter comments available.",
     },
+
+    isFallback: false,
   };
 }
 
@@ -144,7 +146,7 @@ export const getAISuggestions = async (
   try {
     const completion =
       await client.chat.completions.create({
-        model: env.openRouterModel || "google/gemma-2-9b-it:free",
+        model: env.openRouterModel,
 
         temperature: 0,
 
@@ -194,10 +196,18 @@ ${resumeText}
 
     return normalizeAIResponse(parsed);
   } catch (error) {
-    logger.error(
-      "VectorCV AI Error",
-      error
-    );
+    const errorDetails = {
+      name: error?.name || "Error",
+      status: error?.status || error?.statusCode || null,
+      code: error?.code || error?.error?.code || null,
+      type: error?.type || error?.error?.type || null,
+      message:
+        typeof error?.message === "string"
+          ? error.message.replace(/sk-[a-zA-Z0-9_\-]+/g, "[REDACTED]")
+          : "Unknown error",
+    };
+
+    logger.error("VectorCV AI Provider Error", errorDetails);
 
     /* ---------------------------------------------------------------------- */
     /*                           Safe Fallback                                */
@@ -217,20 +227,15 @@ ${resumeText}
       summary:
         "AI analysis is temporarily unavailable. VectorCV generated a fallback analysis using the ATS engine.",
 
-      atsScore: 60,
+      atsScore: null,
 
-      careerReadiness: 68,
+      careerReadiness: null,
 
-      breakdown: {
-        resumeQuality: 75,
-        keywordMatch: 60,
-        skillsMatch: 65,
-        formatting: 90,
-      },
+      breakdown: null,
 
-      matchedSkills: [],
+      matchedSkills: null,
 
-      missingSkills: [],
+      missingSkills: null,
 
       strengths: [
         "Resume uploaded successfully.",
@@ -266,6 +271,9 @@ ${resumeText}
         reason:
           "AI service was unavailable. This assessment is based on the ATS scoring engine.",
       },
+
+      isFallback: true,
+      error: errorDetails.message,
     };
   }
 };

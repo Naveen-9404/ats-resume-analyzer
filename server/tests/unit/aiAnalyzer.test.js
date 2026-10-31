@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { normalizeAIResponse } from "../../src/utils/aiAnalyzer.js";
+import { describe, it, expect, vi } from "vitest";
+import { normalizeAIResponse, getAISuggestions } from "../../src/utils/aiAnalyzer.js";
 
 describe("AI Response Normalization", () => {
   it("should normalize a valid AI response", () => {
@@ -14,6 +14,7 @@ describe("AI Response Normalization", () => {
     expect(result.candidate.name).toBe("John Doe");
     expect(result.summary).toBe("Great candidate");
     expect(result.atsScore).toBe(85);
+    expect(result.isFallback).toBe(false);
   });
 
   it("should handle missing optional fields and malformed values", () => {
@@ -28,6 +29,7 @@ describe("AI Response Normalization", () => {
     expect(result.atsScore).toBe(100); // Clamped
     expect(result.breakdown.resumeQuality).toBe(0); // Clamped
     expect(result.matchedSkills).toEqual([]); // Normalized to empty array
+    expect(result.isFallback).toBe(false);
   });
 
   it("should normalize nested recruiter verdict", () => {
@@ -42,5 +44,24 @@ describe("AI Response Normalization", () => {
 
     expect(result.recruiterVerdict.rating).toBe("Strong Hire");
     expect(result.recruiterVerdict.reason).toBe("No recruiter comments available.");
+    expect(result.isFallback).toBe(false);
+  });
+});
+
+describe("getAISuggestions Provider Error & Fallback Handling", () => {
+  it("should return transparent fallback without fabricated scores when OpenRouter fails", async () => {
+    const result = await getAISuggestions("Sample resume", "Sample job description");
+
+    expect(result.isFallback).toBe(true);
+    expect(result.atsScore).toBeNull();
+    expect(result.careerReadiness).toBeNull();
+    expect(result.breakdown).toBeNull();
+    expect(result.matchedSkills).toBeNull();
+    expect(result.missingSkills).toBeNull();
+
+    expect(result.summary).toContain("AI analysis is temporarily unavailable");
+    expect(result.recruiterVerdict.reason).toContain("AI service was unavailable");
+    expect(Array.isArray(result.recommendations)).toBe(true);
+    expect(result.recommendations.length).toBeGreaterThan(0);
   });
 });
